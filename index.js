@@ -1,10 +1,16 @@
 var allBtns = document.querySelectorAll('.icon-circle');
-var favoriteProducts = [];
-var productsToCompare = [];
-var hiddenProducts = [];
 
-var allProducts = [...document.querySelectorAll('.component')]
-    .map(component => component.id);
+const FAVORITE_PRODUCTS_KEY = "favorite_products";
+const PRODUCTS_TO_COMPARE_KEY = "products_to_compare";
+const HIDDEN_PRODUCTS_KEY = "hidden_products";
+const ALL_PRODUCTS_KEY = "all_products";
+
+localStorage.setItem(FAVORITE_PRODUCTS_KEY, JSON.stringify([]));
+localStorage.setItem(PRODUCTS_TO_COMPARE_KEY, JSON.stringify([]));
+localStorage.setItem(HIDDEN_PRODUCTS_KEY, JSON.stringify([]));
+localStorage.setItem(ALL_PRODUCTS_KEY, JSON.stringify(
+    [...document.querySelectorAll('.component')]
+        .map(component => component.id)));
 
 var currentFiltering = () => handleAllFiltering();
 
@@ -23,82 +29,6 @@ for (i = 0; i < allBtns.length; i++) {
     })
 }
 
-
-// for (i = 0; i < allBtns.length; i++) {
-//     let btn = allBtns[i];
-//     console.log(btn);
-//     btn.addEventListener('click', function () {
-//         console.log("button toggled to active");
-//         let isActive;
-//         // check for btn circle and change it's css class
-//         if (btn.classList.contains('icon-circle') || btn.classList.contains('icon-circle-active')) {
-//             if (!btn.classList.contains('icon-circle-active')) {
-//                 btn.classList.remove('icon-circle');
-//                 btn.classList.add('icon-circle-active');
-
-//                 let btnNode = btn.childNodes[1];
-//                 let filterMarker;
-
-//                 if (btnNode.classList.contains('fa-scale-balanced')) {
-//                     btnNode.classList.remove("fa-scale-balanced");
-//                     btnNode.classList.add("fa-scale-unbalanced");
-//                     filterMarker = 'added-to-comparison'
-//                 } else {
-//                     btnNode.classList.remove("fa-regular");
-//                     btnNode.classList.add("fa-solid");
-//                     if (btnNode.classList.contains('fa-heart')) {
-//                         filterMarker = 'added-to-liked'
-//                     }
-//                 }
-
-//                 if (filterMarker) {
-//                     let componentNode = btn;
-//                     while (!componentNode.classList.contains('component')) {
-//                         componentNode = componentNode.parentNode;
-//                     }
-
-//                     componentNode.classList.add(filterMarker);
-//                 }
-
-
-//                 isActive = true;
-//             } else {
-//                 btn.classList.add('icon-circle');
-//                 btn.classList.remove('icon-circle-active');
-//                 btn.classList.remove('icon-active');
-
-//                 let btnNode = btn.childNodes[1];
-//                 let filterMarker;
-
-//                 if (btnNode.classList.contains('fa-scale-unbalanced')) {
-//                     btnNode.classList.remove("fa-scale-unbalanced");
-//                     btnNode.classList.add("fa-scale-balanced");
-//                     filterMarker = 'added-to-comparison'
-//                 } else {
-//                     btnNode.classList.remove("fa-solid");
-//                     btnNode.classList.add("fa-regular");
-//                     if (btnNode.classList.contains('fa-heart')) {
-//                         filterMarker = 'added-to-liked'
-//                     }
-//                 }
-
-//                 if (filterMarker) {
-//                     let componentNode = btn;
-//                     while (!componentNode.classList.contains('component')) {
-//                         componentNode = componentNode.parentNode;
-//                     }
-
-//                     componentNode.classList.remove(filterMarker);
-//                 }
-//                 isActive = false;
-
-//             }
-//         }
-
-//     })
-// }
-
-
 function handleInactiveProductStateButton(btn) {
 
     btn.classList.remove('icon-circle');
@@ -110,13 +40,15 @@ function handleInactiveProductStateButton(btn) {
         btnNode.classList.remove("fa-scale-balanced");
         btnNode.classList.add("fa-scale-unbalanced");
 
-        getProductIdAndPushToCollection(btn, productsToCompare);
+        let productsToCompare = getProductIdAndPushToCollection(btn, JSON.parse(localStorage.getItem(PRODUCTS_TO_COMPARE_KEY)));
+        localStorage.setItem(PRODUCTS_TO_COMPARE_KEY, JSON.stringify(productsToCompare));
     } else
         if (btnNode.classList.contains('fa-heart')) {
             btnNode.classList.remove("fa-regular");
             btnNode.classList.add("fa-solid");
 
-            getProductIdAndPushToCollection(btn, favoriteProducts);
+            let favoriteProducts = getProductIdAndPushToCollection(btn, JSON.parse(localStorage.getItem(FAVORITE_PRODUCTS_KEY)));
+            localStorage.setItem(FAVORITE_PRODUCTS_KEY, JSON.stringify(favoriteProducts));
         } else
             if (btnNode.classList.contains('fa-eye')) {
                 btnNode.classList.remove("fa-regular");
@@ -124,7 +56,9 @@ function handleInactiveProductStateButton(btn) {
 
                 getProductElementAndDo(btn, (element) => {
                     element.classList.add("hidden-product");
+                    let hiddenProducts = JSON.parse(localStorage.getItem(HIDDEN_PRODUCTS_KEY));
                     hiddenProducts.push(element.id);
+                    localStorage.setItem(HIDDEN_PRODUCTS_KEY, JSON.stringify(hiddenProducts))
                 });
             }
 }
@@ -141,7 +75,8 @@ function handleActiveProductStateButton(btn) {
         btnNode.classList.add("fa-scale-balanced");
 
         getProductElementAndDo(btn, (element) => {
-            productsToCompare = arrayRemove(productsToCompare, element.id);
+            localStorage.setItem(PRODUCTS_TO_COMPARE_KEY,
+                JSON.stringify(arrayRemove(JSON.parse(localStorage.getItem(PRODUCTS_TO_COMPARE_KEY)), element.id)));
         });
     } else
         if (btnNode.classList.contains('fa-heart')) {
@@ -149,7 +84,8 @@ function handleActiveProductStateButton(btn) {
             btnNode.classList.add("fa-regular");
 
             getProductElementAndDo(btn, (element) => {
-                favoriteProducts = arrayRemove(favoriteProducts, element.id);
+                localStorage.setItem(FAVORITE_PRODUCTS_KEY,
+                    JSON.stringify(arrayRemove(JSON.parse(localStorage.getItem(FAVORITE_PRODUCTS_KEY)), element.id)));
             });
         } else
             if (btnNode.classList.contains('fa-eye')) {
@@ -158,7 +94,8 @@ function handleActiveProductStateButton(btn) {
 
                 getProductElementAndDo(btn, (element) => {
                     element.classList.remove("hidden-product");
-                    hiddenProducts = arrayRemove(hiddenProducts, element.id);
+                    localStorage.setItem(HIDDEN_PRODUCTS_KEY,
+                        JSON.stringify(arrayRemove(JSON.parse(localStorage.getItem(HIDDEN_PRODUCTS_KEY)), element.id)));
                 });
             }
 }
@@ -177,6 +114,7 @@ function getProductIdAndPushToCollection(element, collection) {
     }
 
     collection.push(element.id);
+    return collection;
 }
 
 function arrayRemove(arr, value) {
@@ -201,13 +139,9 @@ let allButton = document.getElementById("show-all-button");
 allButton.addEventListener('click', () => handleAllFiltering());
 
 function handleAllFiltering() {
-    allProducts.forEach(id => {
+    JSON.parse(localStorage.getItem(ALL_PRODUCTS_KEY)).forEach(id => {
         console.log(`Product with ${id} made visible}`);
         document.getElementById(id).hidden = false;
-    });
-
-    hiddenProducts.forEach(id => {
-        document.getElementById(id).classList.add("hidden-product");
     });
 
     currentFiltering = () => handleAllFiltering();
@@ -218,15 +152,14 @@ let comparisonButton = document.getElementById("show-compared-button");
 comparisonButton.addEventListener('click', () => handleCompareProductsClick())
 
 function handleCompareProductsClick() {
-    allProducts.forEach(id => {
-        console.log(`Product with ${id} made visible}`);
+    JSON.parse(localStorage.getItem(ALL_PRODUCTS_KEY)).forEach(id => {
         document.getElementById(id).hidden = true;
     });
-    productsToCompare.forEach(id => {
+    JSON.parse(localStorage.getItem(PRODUCTS_TO_COMPARE_KEY)).forEach(id => {
         document.getElementById(id).hidden = false;
     });
 
-    handleHiddenProductsFiltering(document.getElementById("hiddenCheckbox"), productsToCompare);
+    handleHiddenProductsFiltering(document.getElementById("hiddenCheckbox"), JSON.parse(localStorage.getItem(PRODUCTS_TO_COMPARE_KEY)));
     currentFiltering = () => handleCompareProductsClick();
 }
 
@@ -236,15 +169,15 @@ console.log(showLikedButton);
 showLikedButton.addEventListener('click', () => handleShowLikedClick());
 
 
-function handleShowLikedClick() { 
-    allProducts.forEach(id => {
+function handleShowLikedClick() {
+    JSON.parse(localStorage.getItem(ALL_PRODUCTS_KEY)).forEach(id => {
         document.getElementById(id).hidden = true;
     });
-    favoriteProducts.forEach(id => {
+    JSON.parse(localStorage.getItem(FAVORITE_PRODUCTS_KEY)).forEach(id => {
         document.getElementById(id).hidden = false;
     });
 
-    handleHiddenProductsFiltering(document.getElementById("hiddenCheckbox"), favoriteProducts);
+    handleHiddenProductsFiltering(document.getElementById("hiddenCheckbox"), JSON.parse(localStorage.getItem(FAVORITE_PRODUCTS_KEY)));
     currentFiltering = () => handleShowLikedClick();
 }
 
@@ -253,12 +186,13 @@ let showHiddenCheckbox = document.getElementById("hiddenCheckbox");
 showHiddenCheckbox.addEventListener('click', (event) => handleHiddenProducts(event.target));
 
 function handleHiddenProducts(showHiddenCheckbox) {
+    console.log(JSON.parse(localStorage.getItem(HIDDEN_PRODUCTS_KEY)));
     if (showHiddenCheckbox.checked) {
-        hiddenProducts.forEach(id => {
+        JSON.parse(localStorage.getItem(HIDDEN_PRODUCTS_KEY)).forEach(id => {
             document.getElementById(id).classList.remove("hidden-product");
         });
     } else {
-        hiddenProducts.forEach(id => {
+        JSON.parse(localStorage.getItem(HIDDEN_PRODUCTS_KEY)).forEach(id => {
             document.getElementById(id).classList.add("hidden-product");
         });
     }
@@ -273,7 +207,7 @@ function handleHiddenProductsFiltering(showHiddenCheckbox, filteredProducts) {
             document.getElementById(id).hidden = false;
         });
     } else {
-        hiddenProducts.forEach(id => {
+        JSON.parse(localStorage.getItem(HIDDEN_PRODUCTS_KEY)).forEach(id => {
             document.getElementById(id).hidden = true;
         });
     }
