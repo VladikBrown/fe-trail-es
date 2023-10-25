@@ -25,13 +25,18 @@ header>div:nth-child(3) {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    /* repeat(4, 1fr) 3 columns */
     gap: 2vw;
-    /* Gap between grid items */
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
 }
+
+@media only screen and (max-width: 768px) {
+    .product-grid {
+        justify-content: center;
+    }
+}
+
 
 .component {
     position: relative;
@@ -51,14 +56,6 @@ header>div:nth-child(3) {
     margin: 20px;
     align-items: center;
     z-index: 1;
-}
-
-@media only screen and (max-width: 768px) {
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-        /* 3 columns */
-        gap: 5vw;
-    }
 }
 
 .filter-section {
