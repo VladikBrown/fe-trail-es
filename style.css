@@ -114,18 +114,6 @@ header>div:nth-child(3) {
     background-color: #00B7F1;
 }
 
-.hidden-product {
-    pointer-events: none;
-    opacity: 0.4;
-}
-
-#hiddenCheckbox:checked {
-    .hidden-product {
-        pointer-events: all;
-        opacity: 1;
-    }
-}
-
 .attributes {
     font-size: 0.8rem;
     width: 100%;
