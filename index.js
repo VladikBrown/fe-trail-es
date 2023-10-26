@@ -6,13 +6,58 @@ const ALL_PRODUCTS_KEY = "all_products";
 var currentFiltering = () => handleAllFiltering();
 
 //init local storage lists
-localStorage.setItem(FAVORITE_PRODUCTS_KEY, JSON.stringify([]));
-localStorage.setItem(PRODUCTS_TO_COMPARE_KEY, JSON.stringify([]));
-localStorage.setItem(HIDDEN_PRODUCTS_KEY, JSON.stringify([]));
+!(localStorage.getItem(FAVORITE_PRODUCTS_KEY)) && localStorage.setItem(FAVORITE_PRODUCTS_KEY, JSON.stringify([]));
+!(localStorage.getItem(PRODUCTS_TO_COMPARE_KEY)) && localStorage.setItem(PRODUCTS_TO_COMPARE_KEY, JSON.stringify([]));
+!(localStorage.getItem(HIDDEN_PRODUCTS_KEY)) && localStorage.setItem(HIDDEN_PRODUCTS_KEY, JSON.stringify([]));
 localStorage.setItem(ALL_PRODUCTS_KEY, JSON.stringify(
     [...document.querySelectorAll('.component')]
         .map(component => component.id)));
 
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    let favoriteProducts = getItemFromLocalStorage(FAVORITE_PRODUCTS_KEY);
+
+    if (favoriteProducts) {
+        favoriteProducts.forEach(id => {
+            let elemToUpdade = document.getElementById(id).getElementsByClassName("fa-heart")[0];
+            elemToUpdade.classList.remove("fa-regular");
+            elemToUpdade.classList.add("fa-solid");
+            let iconCircleElement = elemToUpdade.parentElement;
+            iconCircleElement.classList.remove('icon-circle');
+            iconCircleElement.classList.add('icon-circle-active');
+        });
+    }
+
+    let productForComparison = getItemFromLocalStorage(PRODUCTS_TO_COMPARE_KEY);
+
+    if (productForComparison) {
+        productForComparison.forEach(id => {
+            let elemToUpdade = document.getElementById(id).getElementsByClassName("fa-scale-balanced")[0];
+            elemToUpdade.classList.remove("fa-scale-balanced");
+            elemToUpdade.classList.add("fa-scale-unbalanced");
+            let iconCircleElement = elemToUpdade.parentElement;
+            iconCircleElement.classList.remove('icon-circle');
+            iconCircleElement.classList.add('icon-circle-active');
+        });
+    }
+
+    let hiddenProducts = getItemFromLocalStorage(HIDDEN_PRODUCTS_KEY);
+
+    if (hiddenProducts) {
+        hiddenProducts.forEach(id => {
+            let productElement = document.getElementById(id);
+            let elemToUpdade = productElement.getElementsByClassName("fa-eye")[0];
+            elemToUpdade.classList.remove("fa-regular");
+            elemToUpdade.classList.add("fa-solid");
+            let iconCircleElement = elemToUpdade.parentElement;
+            iconCircleElement.classList.remove('icon-circle');
+            iconCircleElement.classList.add('icon-circle-active');
+
+            productElement.hidden = true;
+        });
+    }
+});
 
 var allBtns = document.querySelectorAll('.icon-circle');
 
@@ -39,28 +84,6 @@ var handleInactiveProductStateButton = function (btn) {
 
     switch (true) {
         case iconNode.classList.contains('fa-scale-balanced'): {
-            handleRemoveFromComparisonButton(btn);
-            break;
-        }
-        case iconNode.classList.contains('fa-heart'): {
-            handleRemoveFromFavoritesButton(btn);
-            break;
-        }
-        case iconNode.classList.contains('fa-eye'): {
-            handleRemoveFromHiddenButton(btn);
-            break;
-        }
-    }
-}
-
-var handleActiveProductStateButton = function (btn) {
-    btn.classList.add('icon-circle');
-    btn.classList.remove('icon-circle-active');
-
-    let iconNode = btn.childNodes[1];
-
-    switch (true) {
-        case iconNode.classList.contains('fa-scale-unbalanced'): {
             handleAddToComparisonButton(btn);
             break;
         }
@@ -75,9 +98,31 @@ var handleActiveProductStateButton = function (btn) {
     }
 }
 
+var handleActiveProductStateButton = function (btn) {
+    btn.classList.add('icon-circle');
+    btn.classList.remove('icon-circle-active');
 
-//inactive button product state button handlers
-var handleAddToComparisonButton = function (btnNode) {
+    let iconNode = btn.childNodes[1];
+
+    switch (true) {
+        case iconNode.classList.contains('fa-scale-unbalanced'): {
+            handleRemoveToComparisonButton(btn);
+            break;
+        }
+        case iconNode.classList.contains('fa-heart'): {
+            handleRemoveFromFavoritesButton(btn);
+            break;
+        }
+        case iconNode.classList.contains('fa-eye'): {
+            handleRemoveFromHiddenButton(btn);
+            break;
+        }
+    }
+}
+
+
+//active button product state button handlers
+var handleRemoveToComparisonButton = function (btnNode) {
     let iconElement = btnNode.childNodes[1];
 
     iconElement.classList.remove("fa-scale-unbalanced");
@@ -88,7 +133,7 @@ var handleAddToComparisonButton = function (btnNode) {
     });
 }
 
-var handleAddToFavoritesButton = function (btnNode) {
+var handleRemoveFromFavoritesButton = function (btnNode) {
     let iconElement = btnNode.childNodes[1];
 
     iconElement.classList.remove("fa-solid");
@@ -99,7 +144,7 @@ var handleAddToFavoritesButton = function (btnNode) {
     });
 }
 
-var handleAddToHiddenButton = function (btnNode) {
+var handleRemoveFromHiddenButton = function (btnNode) {
     let iconElement = btnNode.childNodes[1];
 
     iconElement.classList.remove("fa-solid");
@@ -110,8 +155,8 @@ var handleAddToHiddenButton = function (btnNode) {
     });
 }
 
-//active button product state button handlers
-var handleRemoveFromComparisonButton = function (btnNode) {
+//inactive button product state button handlers
+var handleAddToComparisonButton = function (btnNode) {
     let iconElement = btnNode.childNodes[1];
 
     iconElement.classList.remove("fa-scale-balanced");
@@ -120,7 +165,7 @@ var handleRemoveFromComparisonButton = function (btnNode) {
     getElementIdAndPushToLocalStorageArray(PRODUCTS_TO_COMPARE_KEY, btnNode);
 }
 
-var handleRemoveFromFavoritesButton = function (btnNode) {
+var handleAddToFavoritesButton = function (btnNode) {
     let iconElement = btnNode.childNodes[1];
 
     iconElement.classList.remove("fa-regular");
@@ -129,7 +174,7 @@ var handleRemoveFromFavoritesButton = function (btnNode) {
     getElementIdAndPushToLocalStorageArray(FAVORITE_PRODUCTS_KEY, btnNode);
 }
 
-var handleRemoveFromHiddenButton = function (btnNode) {
+var handleAddToHiddenButton = function (btnNode) {
     let iconElement = btnNode.childNodes[1];
 
     iconElement.classList.remove("fa-regular");
@@ -215,7 +260,11 @@ var getProductIdAndPushToCollection = function (element, collection) {
         element = element.parentNode;
     }
 
-    collection.push(element.id);
+    if (collection) {
+        collection.push(element.id);
+    } else {
+        collection = [element.id];
+    }
     return collection;
 }
 
