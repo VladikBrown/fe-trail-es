@@ -21,11 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (favoriteProducts) {
         favoriteProducts.forEach(id => {
             let elemToUpdade = document.getElementById(id).getElementsByClassName("fa-heart")[0];
-            elemToUpdade.classList.remove("fa-regular");
-            elemToUpdade.classList.add("fa-solid");
             let iconCircleElement = elemToUpdade.parentElement;
-            iconCircleElement.classList.remove('icon-circle');
-            iconCircleElement.classList.add('icon-circle-active');
+            enableHeartIcon(iconCircleElement); 
         });
     }
 
@@ -34,11 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (productForComparison) {
         productForComparison.forEach(id => {
             let elemToUpdade = document.getElementById(id).getElementsByClassName("fa-scale-balanced")[0];
-            elemToUpdade.classList.remove("fa-scale-balanced");
-            elemToUpdade.classList.add("fa-scale-unbalanced");
             let iconCircleElement = elemToUpdade.parentElement;
-            iconCircleElement.classList.remove('icon-circle');
-            iconCircleElement.classList.add('icon-circle-active');
+            enableScalesIcon(iconCircleElement);
         });
     }
 
@@ -48,12 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
         hiddenProducts.forEach(id => {
             let productElement = document.getElementById(id);
             let elemToUpdade = productElement.getElementsByClassName("fa-eye")[0];
-            elemToUpdade.classList.remove("fa-regular");
-            elemToUpdade.classList.add("fa-solid");
             let iconCircleElement = elemToUpdade.parentElement;
-            iconCircleElement.classList.remove('icon-circle');
-            iconCircleElement.classList.add('icon-circle-active');
 
+            enableEyeIcon(iconCircleElement);
             productElement.hidden = true;
         });
     }
@@ -77,9 +68,6 @@ for (i = 0; i < allBtns.length; i++) {
 }
 
 var handleInactiveProductStateButton = function (btn) {
-    btn.classList.remove('icon-circle');
-    btn.classList.add('icon-circle-active');
-
     let iconNode = btn.childNodes[1];
 
     switch (true) {
@@ -99,9 +87,6 @@ var handleInactiveProductStateButton = function (btn) {
 }
 
 var handleActiveProductStateButton = function (btn) {
-    btn.classList.add('icon-circle');
-    btn.classList.remove('icon-circle-active');
-
     let iconNode = btn.childNodes[1];
 
     switch (true) {
@@ -123,33 +108,21 @@ var handleActiveProductStateButton = function (btn) {
 
 //active button product state button handlers
 var handleRemoveToComparisonButton = function (btnNode) {
-    let iconElement = btnNode.childNodes[1];
-
-    iconElement.classList.remove("fa-scale-unbalanced");
-    iconElement.classList.add("fa-scale-balanced");
-
+    disableScalesIcon(btnNode);
     getProductElementAndDo(btnNode, (element) => {
         removeFromLocalStorageArray(PRODUCTS_TO_COMPARE_KEY, element.id);
     });
 }
 
 var handleRemoveFromFavoritesButton = function (btnNode) {
-    let iconElement = btnNode.childNodes[1];
-
-    iconElement.classList.remove("fa-solid");
-    iconElement.classList.add("fa-regular");
-
+    disableHeartIcon(btnNode);
     getProductElementAndDo(btnNode, (element) => {
         removeFromLocalStorageArray(FAVORITE_PRODUCTS_KEY, element.id);
     });
 }
 
 var handleRemoveFromHiddenButton = function (btnNode) {
-    let iconElement = btnNode.childNodes[1];
-
-    iconElement.classList.remove("fa-solid");
-    iconElement.classList.add("fa-regular");
-
+    disableEyeIcon(btnNode);
     getProductElementAndDo(btnNode, (element) => {
         removeFromLocalStorageArray(HIDDEN_PRODUCTS_KEY, element.id);
     });
@@ -157,29 +130,17 @@ var handleRemoveFromHiddenButton = function (btnNode) {
 
 //inactive button product state button handlers
 var handleAddToComparisonButton = function (btnNode) {
-    let iconElement = btnNode.childNodes[1];
-
-    iconElement.classList.remove("fa-scale-balanced");
-    iconElement.classList.add("fa-scale-unbalanced");
-
+    enableScalesIcon(btnNode);
     getElementIdAndPushToLocalStorageArray(PRODUCTS_TO_COMPARE_KEY, btnNode);
 }
 
 var handleAddToFavoritesButton = function (btnNode) {
-    let iconElement = btnNode.childNodes[1];
-
-    iconElement.classList.remove("fa-regular");
-    iconElement.classList.add("fa-solid");
-
+    enableHeartIcon(btnNode);
     getElementIdAndPushToLocalStorageArray(FAVORITE_PRODUCTS_KEY, btnNode);
 }
 
 var handleAddToHiddenButton = function (btnNode) {
-    let iconElement = btnNode.childNodes[1];
-
-    iconElement.classList.remove("fa-regular");
-    iconElement.classList.add("fa-solid");
-
+    enableEyeIcon(btnNode);
     getProductElementAndDo(btnNode, (element) => {
         let hiddenProducts = getItemFromLocalStorage(HIDDEN_PRODUCTS_KEY);
         element.hidden = true;
@@ -245,8 +206,66 @@ function handleProductsFiltering(filteredProducts) {
     }
 }
 
-//util functions
 
+//icons appearence change
+var enableHeartIcon = function (btnNode) {
+    btnNode.classList.remove('icon-circle');
+    btnNode.classList.add('icon-circle-active');
+
+    let iconElement = btnNode.childNodes[1];
+    iconElement.classList.remove("fa-regular");
+    iconElement.classList.add("fa-solid");
+}
+
+var enableScalesIcon = function (btnNode) {
+    btnNode.classList.remove('icon-circle');
+    btnNode.classList.add('icon-circle-active');
+
+    let iconElement = btnNode.childNodes[1];
+    iconElement.classList.remove("fa-scale-balanced");
+    iconElement.classList.add("fa-scale-unbalanced");
+}
+
+var enableEyeIcon = function (btnNode) {
+    btnNode.classList.remove('icon-circle');
+    btnNode.classList.add('icon-circle-active');
+
+    let iconElement = btnNode.childNodes[1];
+    iconElement.classList.remove("fa-regular");
+    iconElement.classList.add("fa-solid");
+}
+
+var disableScalesIcon = function(btnNode) {
+    btnNode.classList.add('icon-circle');
+    btnNode.classList.remove('icon-circle-active');
+
+    let iconElement = btnNode.childNodes[1];
+
+    iconElement.classList.remove("fa-scale-unbalanced");
+    iconElement.classList.add("fa-scale-balanced");
+}
+
+var disableHeartIcon = function(btnNode) {
+    btnNode.classList.add('icon-circle');
+    btnNode.classList.remove('icon-circle-active');
+
+    let iconElement = btnNode.childNodes[1];
+
+    iconElement.classList.remove("fa-solid");
+    iconElement.classList.add("fa-regular");
+}
+
+var disableEyeIcon = function(btnNode) {
+    btnNode.classList.add('icon-circle');
+    btnNode.classList.remove('icon-circle-active');
+
+    let iconElement = btnNode.childNodes[1];
+
+    iconElement.classList.remove("fa-solid");
+    iconElement.classList.add("fa-regular");
+}
+
+//util functions
 var getProductElementAndDo = function (element, func) {
     while (!element.classList.contains('component')) {
         element = element.parentNode;
